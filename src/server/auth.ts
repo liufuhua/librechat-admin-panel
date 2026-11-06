@@ -1,3 +1,4 @@
+import { assistantFetch, assistantMode, assistantUser } from './utils/assistant';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { redirect } from '@tanstack/react-router';
@@ -49,6 +50,7 @@ export const adminLoginFn = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
+    if (assistantMode()) return { error: true, message: 'Please sign in through the workspace.' };
     try {
       const response = await fetch(`${getServerApiUrl()}/api/admin/login/local`, {
         method: 'POST',
@@ -181,6 +183,7 @@ const clearSession = async (session: Awaited<ReturnType<typeof useAppSession>>) 
 };
 
 export const verifyAdminTokenFn = createServerFn({ method: 'GET' }).handler(async () => {
+  if (assistantMode()) return assistantUser();
   try {
     const session = await useAppSession();
     const { token, user, lastVerified, lastActivity, refreshToken, tokenProvider } = session.data;
@@ -291,6 +294,10 @@ export const requireAuthFn = createServerFn({ method: 'GET' })
 const logoutResponseSchema = z.object({ redirect: z.string().optional() });
 
 export const adminLogoutFn = createServerFn({ method: 'POST' }).handler(async () => {
+  if (assistantMode()) {
+    const response = await assistantFetch('/api/logout', { method: 'POST' });
+    return { error: !response.ok };
+  }
   try {
     const session = await useAppSession();
     const token = session.data.token;
@@ -321,6 +328,7 @@ export const adminLogoutFn = createServerFn({ method: 'POST' }).handler(async ()
 });
 
 export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(async () => {
+  if (assistantMode()) { const result = await assistantUser(); return { user: result.user ?? null, isAuthenticated: result.valid }; }
   try {
     const session = await useAppSession();
     return {
@@ -341,6 +349,7 @@ export const openIdCheckOptions = queryOptions({
 });
 
 export const checkOpenIdFn = createServerFn({ method: 'GET' }).handler(async () => {
+  if (assistantMode()) return { available: false, ssoOnly: false };
   if (process.env.ADMIN_SSO_ENABLED === 'false') {
     return { available: false, ssoOnly: false };
   }

@@ -15,9 +15,21 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppUsersRouteImport } from './routes/_app/users'
 import { Route as AppHelpRouteImport } from './routes/_app/help'
 import { Route as AppGrantsRouteImport } from './routes/_app/grants'
+import { Route as AppDataQueryRouteImport } from './routes/_app/data-query'
 import { Route as AppAccessRouteImport } from './routes/_app/access'
+import { Route as AppDataQueryIndexRouteImport } from './routes/_app/data-query/index'
 import { Route as AppConfigurationIndexRouteImport } from './routes/_app/configuration/index'
 import { Route as AuthOpenidCallbackRouteImport } from './routes/auth/openid/callback'
+import { Route as AppDataQuerySourcesRouteImport } from './routes/_app/data-query/sources'
+import { Route as AppDataQueryDomainsRouteImport } from './routes/_app/data-query/domains'
+import { Route as AppDataQueryAuthorizationsRouteImport } from './routes/_app/data-query/authorizations'
+import { Route as AppDataQueryAuditRouteImport } from './routes/_app/data-query/audit'
+import { Route as AppDataQuerySourcesIndexRouteImport } from './routes/_app/data-query/sources/index'
+import { Route as AppDataQueryDomainsIndexRouteImport } from './routes/_app/data-query/domains/index'
+import { Route as AppDataQuerySourcesNewRouteImport } from './routes/_app/data-query/sources/new'
+import { Route as AppDataQuerySourcesSourceKeyRouteImport } from './routes/_app/data-query/sources/$sourceKey'
+import { Route as AppDataQueryDomainsNewRouteImport } from './routes/_app/data-query/domains/new'
+import { Route as AppDataQueryDomainsDomainKeyVersionsVersionKeyRouteImport } from './routes/_app/data-query/domains/$domainKey/versions/$versionKey'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -48,10 +60,20 @@ const AppGrantsRoute = AppGrantsRouteImport.update({
   path: '/grants',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDataQueryRoute = AppDataQueryRouteImport.update({
+  id: '/data-query',
+  path: '/data-query',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAccessRoute = AppAccessRouteImport.update({
   id: '/access',
   path: '/access',
   getParentRoute: () => AppRoute,
+} as any)
+const AppDataQueryIndexRoute = AppDataQueryIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppDataQueryRoute,
 } as any)
 const AppConfigurationIndexRoute = AppConfigurationIndexRouteImport.update({
   id: '/configuration/',
@@ -63,16 +85,83 @@ const AuthOpenidCallbackRoute = AuthOpenidCallbackRouteImport.update({
   path: '/auth/openid/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppDataQuerySourcesRoute = AppDataQuerySourcesRouteImport.update({
+  id: '/sources',
+  path: '/sources',
+  getParentRoute: () => AppDataQueryRoute,
+} as any)
+const AppDataQueryDomainsRoute = AppDataQueryDomainsRouteImport.update({
+  id: '/domains',
+  path: '/domains',
+  getParentRoute: () => AppDataQueryRoute,
+} as any)
+const AppDataQueryAuthorizationsRoute =
+  AppDataQueryAuthorizationsRouteImport.update({
+    id: '/authorizations',
+    path: '/authorizations',
+    getParentRoute: () => AppDataQueryRoute,
+  } as any)
+const AppDataQueryAuditRoute = AppDataQueryAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AppDataQueryRoute,
+} as any)
+const AppDataQuerySourcesIndexRoute =
+  AppDataQuerySourcesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppDataQuerySourcesRoute,
+  } as any)
+const AppDataQueryDomainsIndexRoute =
+  AppDataQueryDomainsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppDataQueryDomainsRoute,
+  } as any)
+const AppDataQuerySourcesNewRoute = AppDataQuerySourcesNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppDataQuerySourcesRoute,
+} as any)
+const AppDataQuerySourcesSourceKeyRoute =
+  AppDataQuerySourcesSourceKeyRouteImport.update({
+    id: '/$sourceKey',
+    path: '/$sourceKey',
+    getParentRoute: () => AppDataQuerySourcesRoute,
+  } as any)
+const AppDataQueryDomainsNewRoute = AppDataQueryDomainsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppDataQueryDomainsRoute,
+} as any)
+const AppDataQueryDomainsDomainKeyVersionsVersionKeyRoute =
+  AppDataQueryDomainsDomainKeyVersionsVersionKeyRouteImport.update({
+    id: '/$domainKey/versions/$versionKey',
+    path: '/$domainKey/versions/$versionKey',
+    getParentRoute: () => AppDataQueryDomainsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/access': typeof AppAccessRoute
+  '/data-query': typeof AppDataQueryRouteWithChildren
   '/grants': typeof AppGrantsRoute
   '/help': typeof AppHelpRoute
   '/users': typeof AppUsersRoute
+  '/data-query/audit': typeof AppDataQueryAuditRoute
+  '/data-query/authorizations': typeof AppDataQueryAuthorizationsRoute
+  '/data-query/domains': typeof AppDataQueryDomainsRouteWithChildren
+  '/data-query/sources': typeof AppDataQuerySourcesRouteWithChildren
   '/auth/openid/callback': typeof AuthOpenidCallbackRoute
   '/configuration/': typeof AppConfigurationIndexRoute
+  '/data-query/': typeof AppDataQueryIndexRoute
+  '/data-query/domains/new': typeof AppDataQueryDomainsNewRoute
+  '/data-query/sources/$sourceKey': typeof AppDataQuerySourcesSourceKeyRoute
+  '/data-query/sources/new': typeof AppDataQuerySourcesNewRoute
+  '/data-query/domains/': typeof AppDataQueryDomainsIndexRoute
+  '/data-query/sources/': typeof AppDataQuerySourcesIndexRoute
+  '/data-query/domains/$domainKey/versions/$versionKey': typeof AppDataQueryDomainsDomainKeyVersionsVersionKeyRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -81,20 +170,41 @@ export interface FileRoutesByTo {
   '/help': typeof AppHelpRoute
   '/users': typeof AppUsersRoute
   '/': typeof AppIndexRoute
+  '/data-query/audit': typeof AppDataQueryAuditRoute
+  '/data-query/authorizations': typeof AppDataQueryAuthorizationsRoute
   '/auth/openid/callback': typeof AuthOpenidCallbackRoute
   '/configuration': typeof AppConfigurationIndexRoute
+  '/data-query': typeof AppDataQueryIndexRoute
+  '/data-query/domains/new': typeof AppDataQueryDomainsNewRoute
+  '/data-query/sources/$sourceKey': typeof AppDataQuerySourcesSourceKeyRoute
+  '/data-query/sources/new': typeof AppDataQuerySourcesNewRoute
+  '/data-query/domains': typeof AppDataQueryDomainsIndexRoute
+  '/data-query/sources': typeof AppDataQuerySourcesIndexRoute
+  '/data-query/domains/$domainKey/versions/$versionKey': typeof AppDataQueryDomainsDomainKeyVersionsVersionKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/access': typeof AppAccessRoute
+  '/_app/data-query': typeof AppDataQueryRouteWithChildren
   '/_app/grants': typeof AppGrantsRoute
   '/_app/help': typeof AppHelpRoute
   '/_app/users': typeof AppUsersRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/data-query/audit': typeof AppDataQueryAuditRoute
+  '/_app/data-query/authorizations': typeof AppDataQueryAuthorizationsRoute
+  '/_app/data-query/domains': typeof AppDataQueryDomainsRouteWithChildren
+  '/_app/data-query/sources': typeof AppDataQuerySourcesRouteWithChildren
   '/auth/openid/callback': typeof AuthOpenidCallbackRoute
   '/_app/configuration/': typeof AppConfigurationIndexRoute
+  '/_app/data-query/': typeof AppDataQueryIndexRoute
+  '/_app/data-query/domains/new': typeof AppDataQueryDomainsNewRoute
+  '/_app/data-query/sources/$sourceKey': typeof AppDataQuerySourcesSourceKeyRoute
+  '/_app/data-query/sources/new': typeof AppDataQuerySourcesNewRoute
+  '/_app/data-query/domains/': typeof AppDataQueryDomainsIndexRoute
+  '/_app/data-query/sources/': typeof AppDataQuerySourcesIndexRoute
+  '/_app/data-query/domains/$domainKey/versions/$versionKey': typeof AppDataQueryDomainsDomainKeyVersionsVersionKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -102,11 +212,23 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/access'
+    | '/data-query'
     | '/grants'
     | '/help'
     | '/users'
+    | '/data-query/audit'
+    | '/data-query/authorizations'
+    | '/data-query/domains'
+    | '/data-query/sources'
     | '/auth/openid/callback'
     | '/configuration/'
+    | '/data-query/'
+    | '/data-query/domains/new'
+    | '/data-query/sources/$sourceKey'
+    | '/data-query/sources/new'
+    | '/data-query/domains/'
+    | '/data-query/sources/'
+    | '/data-query/domains/$domainKey/versions/$versionKey'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -115,19 +237,40 @@ export interface FileRouteTypes {
     | '/help'
     | '/users'
     | '/'
+    | '/data-query/audit'
+    | '/data-query/authorizations'
     | '/auth/openid/callback'
     | '/configuration'
+    | '/data-query'
+    | '/data-query/domains/new'
+    | '/data-query/sources/$sourceKey'
+    | '/data-query/sources/new'
+    | '/data-query/domains'
+    | '/data-query/sources'
+    | '/data-query/domains/$domainKey/versions/$versionKey'
   id:
     | '__root__'
     | '/_app'
     | '/login'
     | '/_app/access'
+    | '/_app/data-query'
     | '/_app/grants'
     | '/_app/help'
     | '/_app/users'
     | '/_app/'
+    | '/_app/data-query/audit'
+    | '/_app/data-query/authorizations'
+    | '/_app/data-query/domains'
+    | '/_app/data-query/sources'
     | '/auth/openid/callback'
     | '/_app/configuration/'
+    | '/_app/data-query/'
+    | '/_app/data-query/domains/new'
+    | '/_app/data-query/sources/$sourceKey'
+    | '/_app/data-query/sources/new'
+    | '/_app/data-query/domains/'
+    | '/_app/data-query/sources/'
+    | '/_app/data-query/domains/$domainKey/versions/$versionKey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -180,12 +323,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGrantsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/data-query': {
+      id: '/_app/data-query'
+      path: '/data-query'
+      fullPath: '/data-query'
+      preLoaderRoute: typeof AppDataQueryRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/access': {
       id: '/_app/access'
       path: '/access'
       fullPath: '/access'
       preLoaderRoute: typeof AppAccessRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/data-query/': {
+      id: '/_app/data-query/'
+      path: '/'
+      fullPath: '/data-query/'
+      preLoaderRoute: typeof AppDataQueryIndexRouteImport
+      parentRoute: typeof AppDataQueryRoute
     }
     '/_app/configuration/': {
       id: '/_app/configuration/'
@@ -201,11 +358,133 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthOpenidCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/data-query/sources': {
+      id: '/_app/data-query/sources'
+      path: '/sources'
+      fullPath: '/data-query/sources'
+      preLoaderRoute: typeof AppDataQuerySourcesRouteImport
+      parentRoute: typeof AppDataQueryRoute
+    }
+    '/_app/data-query/domains': {
+      id: '/_app/data-query/domains'
+      path: '/domains'
+      fullPath: '/data-query/domains'
+      preLoaderRoute: typeof AppDataQueryDomainsRouteImport
+      parentRoute: typeof AppDataQueryRoute
+    }
+    '/_app/data-query/authorizations': {
+      id: '/_app/data-query/authorizations'
+      path: '/authorizations'
+      fullPath: '/data-query/authorizations'
+      preLoaderRoute: typeof AppDataQueryAuthorizationsRouteImport
+      parentRoute: typeof AppDataQueryRoute
+    }
+    '/_app/data-query/audit': {
+      id: '/_app/data-query/audit'
+      path: '/audit'
+      fullPath: '/data-query/audit'
+      preLoaderRoute: typeof AppDataQueryAuditRouteImport
+      parentRoute: typeof AppDataQueryRoute
+    }
+    '/_app/data-query/sources/': {
+      id: '/_app/data-query/sources/'
+      path: '/'
+      fullPath: '/data-query/sources/'
+      preLoaderRoute: typeof AppDataQuerySourcesIndexRouteImport
+      parentRoute: typeof AppDataQuerySourcesRoute
+    }
+    '/_app/data-query/domains/': {
+      id: '/_app/data-query/domains/'
+      path: '/'
+      fullPath: '/data-query/domains/'
+      preLoaderRoute: typeof AppDataQueryDomainsIndexRouteImport
+      parentRoute: typeof AppDataQueryDomainsRoute
+    }
+    '/_app/data-query/sources/new': {
+      id: '/_app/data-query/sources/new'
+      path: '/new'
+      fullPath: '/data-query/sources/new'
+      preLoaderRoute: typeof AppDataQuerySourcesNewRouteImport
+      parentRoute: typeof AppDataQuerySourcesRoute
+    }
+    '/_app/data-query/sources/$sourceKey': {
+      id: '/_app/data-query/sources/$sourceKey'
+      path: '/$sourceKey'
+      fullPath: '/data-query/sources/$sourceKey'
+      preLoaderRoute: typeof AppDataQuerySourcesSourceKeyRouteImport
+      parentRoute: typeof AppDataQuerySourcesRoute
+    }
+    '/_app/data-query/domains/new': {
+      id: '/_app/data-query/domains/new'
+      path: '/new'
+      fullPath: '/data-query/domains/new'
+      preLoaderRoute: typeof AppDataQueryDomainsNewRouteImport
+      parentRoute: typeof AppDataQueryDomainsRoute
+    }
+    '/_app/data-query/domains/$domainKey/versions/$versionKey': {
+      id: '/_app/data-query/domains/$domainKey/versions/$versionKey'
+      path: '/$domainKey/versions/$versionKey'
+      fullPath: '/data-query/domains/$domainKey/versions/$versionKey'
+      preLoaderRoute: typeof AppDataQueryDomainsDomainKeyVersionsVersionKeyRouteImport
+      parentRoute: typeof AppDataQueryDomainsRoute
+    }
   }
 }
 
+interface AppDataQueryDomainsRouteChildren {
+  AppDataQueryDomainsNewRoute: typeof AppDataQueryDomainsNewRoute
+  AppDataQueryDomainsIndexRoute: typeof AppDataQueryDomainsIndexRoute
+  AppDataQueryDomainsDomainKeyVersionsVersionKeyRoute: typeof AppDataQueryDomainsDomainKeyVersionsVersionKeyRoute
+}
+
+const AppDataQueryDomainsRouteChildren: AppDataQueryDomainsRouteChildren = {
+  AppDataQueryDomainsNewRoute: AppDataQueryDomainsNewRoute,
+  AppDataQueryDomainsIndexRoute: AppDataQueryDomainsIndexRoute,
+  AppDataQueryDomainsDomainKeyVersionsVersionKeyRoute:
+    AppDataQueryDomainsDomainKeyVersionsVersionKeyRoute,
+}
+
+const AppDataQueryDomainsRouteWithChildren =
+  AppDataQueryDomainsRoute._addFileChildren(AppDataQueryDomainsRouteChildren)
+
+interface AppDataQuerySourcesRouteChildren {
+  AppDataQuerySourcesSourceKeyRoute: typeof AppDataQuerySourcesSourceKeyRoute
+  AppDataQuerySourcesNewRoute: typeof AppDataQuerySourcesNewRoute
+  AppDataQuerySourcesIndexRoute: typeof AppDataQuerySourcesIndexRoute
+}
+
+const AppDataQuerySourcesRouteChildren: AppDataQuerySourcesRouteChildren = {
+  AppDataQuerySourcesSourceKeyRoute: AppDataQuerySourcesSourceKeyRoute,
+  AppDataQuerySourcesNewRoute: AppDataQuerySourcesNewRoute,
+  AppDataQuerySourcesIndexRoute: AppDataQuerySourcesIndexRoute,
+}
+
+const AppDataQuerySourcesRouteWithChildren =
+  AppDataQuerySourcesRoute._addFileChildren(AppDataQuerySourcesRouteChildren)
+
+interface AppDataQueryRouteChildren {
+  AppDataQueryAuditRoute: typeof AppDataQueryAuditRoute
+  AppDataQueryAuthorizationsRoute: typeof AppDataQueryAuthorizationsRoute
+  AppDataQueryDomainsRoute: typeof AppDataQueryDomainsRouteWithChildren
+  AppDataQuerySourcesRoute: typeof AppDataQuerySourcesRouteWithChildren
+  AppDataQueryIndexRoute: typeof AppDataQueryIndexRoute
+}
+
+const AppDataQueryRouteChildren: AppDataQueryRouteChildren = {
+  AppDataQueryAuditRoute: AppDataQueryAuditRoute,
+  AppDataQueryAuthorizationsRoute: AppDataQueryAuthorizationsRoute,
+  AppDataQueryDomainsRoute: AppDataQueryDomainsRouteWithChildren,
+  AppDataQuerySourcesRoute: AppDataQuerySourcesRouteWithChildren,
+  AppDataQueryIndexRoute: AppDataQueryIndexRoute,
+}
+
+const AppDataQueryRouteWithChildren = AppDataQueryRoute._addFileChildren(
+  AppDataQueryRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAccessRoute: typeof AppAccessRoute
+  AppDataQueryRoute: typeof AppDataQueryRouteWithChildren
   AppGrantsRoute: typeof AppGrantsRoute
   AppHelpRoute: typeof AppHelpRoute
   AppUsersRoute: typeof AppUsersRoute
@@ -215,6 +494,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccessRoute: AppAccessRoute,
+  AppDataQueryRoute: AppDataQueryRouteWithChildren,
   AppGrantsRoute: AppGrantsRoute,
   AppHelpRoute: AppHelpRoute,
   AppUsersRoute: AppUsersRoute,

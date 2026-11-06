@@ -88,6 +88,11 @@ export function CommandMenu({ open, onOpenChange }: t.CommandMenuProps) {
             onSelect={() => navigateTo('/grants')}
           />
           <CommandItem
+            icon="database"
+            label={localize('com_nav_data_query')}
+            onSelect={() => navigateTo('/data-query')}
+          />
+          <CommandItem
             icon="question"
             label={localize('com_nav_help')}
             onSelect={() => navigateTo('/help')}

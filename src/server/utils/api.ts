@@ -1,3 +1,4 @@
+import { assistantFetch, assistantMode } from './assistant';
 import { ensureFreshBearer, refreshOn401 } from './refresh';
 import { getServerApiUrl } from './url';
 
@@ -17,6 +18,7 @@ const PROACTIVE_REFRESH_SKEW_MS = 30_000;
  *   attempt.
  */
 export async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
+  if (assistantMode()) return assistantFetch(path, init);
   const initialToken = await ensureFreshBearer(PROACTIVE_REFRESH_SKEW_MS);
   if (!initialToken) {
     throw new Error('No admin session token available');
@@ -49,10 +51,15 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
  * Handles both `{ error }` and `{ message }` response shapes.
  */
 export async function extractApiError(response: Response, fallback: string): Promise<never> {
-  const body = await response.json().catch(() => ({}));
+  const body = await response.json().catch(() => ({})) as {
+    error?: string;
+    message?: string;
+    detail?: { code?: string };
+  };
   const message =
-    (body as { error?: string }).error ??
-    (body as { message?: string }).message ??
+    body.error ??
+    body.message ??
+    body.detail?.code ??
     `${fallback}: ${response.status}`;
   throw new Error(message);
 }

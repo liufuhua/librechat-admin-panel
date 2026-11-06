@@ -1,3 +1,4 @@
+import { createServerOnlyFn } from '@tanstack/react-start';
 import { useSession } from '@tanstack/react-start/server';
 import type * as t from '@/types';
 
@@ -24,17 +25,19 @@ export const SESSION_CONFIG = {
 const sessionSecret =
   process.env.SESSION_SECRET || (process.env.NODE_ENV === 'development' ? DEV_SECRET : undefined);
 
-if (!sessionSecret) {
+const isServerRuntime = typeof window === 'undefined';
+
+if (isServerRuntime && !sessionSecret) {
   throw new Error('SESSION_SECRET environment variable must be set for admin session encryption.');
 }
 
-if (sessionSecret.length < MIN_SESSION_SECRET_LENGTH) {
+if (isServerRuntime && sessionSecret && sessionSecret.length < MIN_SESSION_SECRET_LENGTH) {
   throw new Error(
     `SESSION_SECRET must be at least ${MIN_SESSION_SECRET_LENGTH} characters for admin session encryption.`,
   );
 }
 
-if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'development') {
+if (isServerRuntime && !process.env.SESSION_SECRET && process.env.NODE_ENV === 'development') {
   console.warn(
     '[session] Using hardcoded DEV_SECRET — set SESSION_SECRET for production-like environments',
   );
@@ -42,16 +45,18 @@ if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'development') {
 
 const sessionCookiePath = process.env.VITE_BASE_PATH || '/';
 
-export function useAppSession(): ReturnType<typeof useSession<t.SessionData>> {
-  return useSession<t.SessionData>({
-    name: 'admin-session',
-    password: sessionSecret || '',
-    cookie: {
-      path: sessionCookiePath,
-      secure: sessionCookieSecure,
-      sameSite: 'lax',
-      httpOnly: true,
-      maxAge: 60 * 60 * 24 * 7,
-    },
-  });
-}
+export const useAppSession = createServerOnlyFn(
+  (): ReturnType<typeof useSession<t.SessionData>> => {
+    return useSession<t.SessionData>({
+      name: 'admin-session',
+      password: sessionSecret || '',
+      cookie: {
+        path: sessionCookiePath,
+        secure: sessionCookieSecure,
+        sameSite: 'lax',
+        httpOnly: true,
+        maxAge: 60 * 60 * 24 * 7,
+      },
+    });
+  },
+);

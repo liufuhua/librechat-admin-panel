@@ -71,7 +71,7 @@ const CSP_VALUE = [
   "font-src 'self' data:",
   "connect-src 'self'",
   "object-src 'none'",
-  "frame-ancestors 'none'",
+  env.ASSISTANT_MODE === 'true' ? "frame-ancestors 'self'" : "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
 ].join('; ');
@@ -87,7 +87,7 @@ function applySecurityHeaders(headers: Headers): void {
   headers.set(CSP_HEADER_NAME, CSP_VALUE);
   headers.set('X-Content-Type-Options', 'nosniff');
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  headers.set('X-Frame-Options', 'DENY');
+  headers.set('X-Frame-Options', env.ASSISTANT_MODE === 'true' ? 'SAMEORIGIN' : 'DENY');
   if (process.env.NODE_ENV === 'production') {
     headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }

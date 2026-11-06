@@ -1,0 +1,1 @@
+export { DomainVersionPage } from './DomainVersionPage';

@@ -16,9 +16,9 @@ const ROUTE_TITLE_KEYS: Record<string, string> = {
   '/users': 'com_users_title',
   '/access': 'com_access_title',
   '/grants': 'com_grants_title',
+  '/data-query': 'com_data_query_title',
   '/help': 'com_help_title',
 };
-
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: async ({ location }) => {
@@ -31,6 +31,11 @@ export const Route = createFileRoute('/_app')({
       });
     }
 
+    if (import.meta.env.VITE_ASSISTANT_MODE === 'true') {
+      const base = (import.meta.env.VITE_BASE_PATH || '').replace(/\/$/, '');
+      const path = base && location.pathname.startsWith(base) ? location.pathname.slice(base.length) : location.pathname;
+      if (!path.startsWith('/data-query')) throw redirect({ to: '/data-query' });
+    }
     return { user: result.user };
   },
   component: AppLayout,
@@ -39,6 +44,7 @@ export const Route = createFileRoute('/_app')({
 });
 
 function AppLayout() {
+  const embedded = import.meta.env.VITE_ASSISTANT_MODE === 'true';
   const { user } = Route.useRouteContext();
   const { hasCapability, isLoading, isError } = useCapabilities();
   const router = useRouter();
@@ -79,14 +85,14 @@ function AppLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar user={user} collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
+      {!embedded && <Sidebar user={user} collapsed={sidebarCollapsed} onToggle={toggleSidebar} />}
       <div className="flex min-w-0 flex-1 flex-col">
-        <Header title={title} onSearchClick={() => setOpen(true)} />
+        {!embedded && <Header title={title} onSearchClick={() => setOpen(true)} />}
         <main className="flex min-h-0 flex-1 flex-col overflow-auto">
           <Outlet />
         </main>
       </div>
-      <CommandMenu open={open} onOpenChange={setOpen} />
+      {!embedded && <CommandMenu open={open} onOpenChange={setOpen} />}
     </div>
   );
 }

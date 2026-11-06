@@ -24,6 +24,7 @@ export function FormDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitDisabled || saving) return;
     onSubmit();
   };
 
@@ -51,7 +52,7 @@ export function FormDialog({
             <Button
               type="secondary"
               label={localize('com_ui_cancel')}
-              onClick={onClose}
+              onClick={(event) => { event.preventDefault(); onClose(); }}
               disabled={saving}
             />
             <Button

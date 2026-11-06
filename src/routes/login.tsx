@@ -22,6 +22,9 @@ function LoginPage() {
   const { redirect } = Route.useSearch();
   const { ssoAvailable, ssoOnly } = Route.useLoaderData();
 
+  if (import.meta.env.VITE_ASSISTANT_MODE === 'true') {
+    return <main style={{ padding: '2rem', textAlign: 'center' }}><h1>请先登录企业工作空间</h1><p>数据管理仅对当前有效的管理员账号开放。请返回工作台重新登录。</p></main>;
+  }
   return (
     <Container
       orientation="vertical"

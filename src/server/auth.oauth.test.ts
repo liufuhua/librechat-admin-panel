@@ -8,6 +8,7 @@ const requestHeaders = new Map<string, string>();
 const sessionState: { data: Record<string, unknown> } = { data: {} };
 
 vi.mock('@tanstack/react-start', () => ({
+  createServerOnlyFn: <T>(fn: T): T => fn,
   createServerFn: () => ({
     handler: (fn: (...args: unknown[]) => unknown) => fn,
     inputValidator: () => ({

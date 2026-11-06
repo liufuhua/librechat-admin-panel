@@ -31,6 +31,7 @@ const navItems: t.NavItem[] = [
     capability: [SystemCapabilities.READ_ROLES, SystemCapabilities.READ_GROUPS],
   },
   { labelKey: 'com_nav_grants', path: '/grants', icon: 'lock' },
+  { labelKey: 'com_nav_data_query', path: '/data-query', icon: 'database' },
   { labelKey: 'com_nav_help', path: '/help', icon: 'question' },
 ];
 
@@ -50,6 +51,7 @@ export function Sidebar({ user, collapsed, onToggle }: t.SidebarProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const visibleItems = navItems.filter((item) => {
+    if (import.meta.env.VITE_ASSISTANT_MODE === 'true') return item.path === '/data-query';
     if (!item.capability) return true;
     if (Array.isArray(item.capability)) return item.capability.some((c) => hasCapability(c));
     return hasCapability(item.capability);
@@ -88,9 +90,13 @@ export function Sidebar({ user, collapsed, onToggle }: t.SidebarProps) {
       >
         <div className="flex h-14 shrink-0 items-center px-2">
           <div className="flex items-center gap-2.5 overflow-hidden px-1.5">
-            <img src={libreChatLogo} alt={localize('com_a11y_logo_alt')} className="h-6 w-6 shrink-0" />
+            {import.meta.env.VITE_ASSISTANT_MODE !== 'true' && <img
+              src={libreChatLogo}
+              alt={localize('com_a11y_logo_alt')}
+              className="h-6 w-6 shrink-0"
+            />}
             <span className="truncate text-sm font-semibold text-(--cui-color-text-default)">
-              {localize('com_auth_title')}
+              {localize(import.meta.env.VITE_ASSISTANT_MODE === 'true' ? 'com_nav_data_query' : 'com_auth_title')}
             </span>
           </div>
         </div>

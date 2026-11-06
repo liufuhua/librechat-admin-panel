@@ -1,0 +1,11 @@
+# Local recovery Dockerfile. It layers already-built Admin Panel assets on the
+# existing local image when Docker Hub is unavailable. Normal CI and clean
+# production builds continue to use Dockerfile.
+FROM nuclear-admin-panel:local
+
+USER root
+
+COPY --chown=bun:bun dist /app/dist
+COPY --chown=bun:bun src/server /app/src/server
+
+USER bun

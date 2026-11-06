@@ -1,5 +1,6 @@
-import { z } from 'zod';
+import { createServerOnlyFn } from '@tanstack/react-start';
 import { getRequestHeader } from '@tanstack/react-start/server';
+import { z } from 'zod';
 import type * as t from '@/types';
 import { useAppSession } from '../session';
 import { getServerApiUrl } from './url';
@@ -21,12 +22,12 @@ export interface RefreshedTokenset {
  * `preAuthTenantMiddleware` can scope the refresh lookup. Returns `undefined`
  * (no header) when the BFF request didn't carry one — single-tenant deploys.
  */
-function readTenantHeader(): string | undefined {
+const readTenantHeader = createServerOnlyFn((): string | undefined => {
   const raw = getRequestHeader('x-tenant-id');
   if (typeof raw !== 'string') return undefined;
   const trimmed = raw.trim();
   return trimmed.length > 0 ? trimmed : undefined;
-}
+});
 
 function extractRefreshTokenCookie(response: Response): string | undefined {
   const setCookies = response.headers.getSetCookie();
