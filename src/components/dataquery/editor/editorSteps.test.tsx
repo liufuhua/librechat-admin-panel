@@ -78,6 +78,27 @@ describe('structured domain editor steps', () => {
     expect(value.access_policies).toEqual([]);
     unmount();
   });
+  it('adds summary purposes with empty scope, saves IDs and leaves grants unchanged', async () => {
+    await i18n.changeLanguage('en');
+    const value = structuredClone(draft);
+    const props = {draft: value, readOnly: false, update: (fn: (d: t.DataQueryDomainDraft) => void) => fn(value)};
+    const {rerender, unmount} = render(<RulesStep {...props} />);
+    fireEvent.change(screen.getByRole('combobox'), {target: {value: 'summary_projection'}});
+    fireEvent.click(screen.getByRole('button', {name: /^Add$/}));
+    const rule = value.sql_rules[0];
+    expect(rule.rule_type).toBe('summary_projection');
+    if (rule.rule_type !== 'summary_projection') throw new Error('wrong type');
+    expect(Object.values(rule.rule_config).every(ids => ids.length === 0)).toBe(true);
+    rerender(<RulesStep {...props} />);
+    const select = screen.getByLabelText('允许计数的表') as HTMLSelectElement;
+    expect(select.options[0].text).toBe('orders');
+    select.options[0].selected = true;
+    fireEvent.change(select);
+    expect(rule.rule_config.count_tables).toEqual([value.tables[0].object_ref.object_id]);
+    expect(value.access_policies).toEqual([]);
+    expect((screen.getByLabelText('可等值筛选的文本（最多120字）') as HTMLSelectElement).options.length).toBe(0);
+    unmount();
+  });
   it.each([
     ['Basic information', BasicStep],
     ['Schema', SchemaStep],

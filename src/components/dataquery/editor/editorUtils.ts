@@ -52,6 +52,10 @@ export function objectDependencies(
   objectId: string,
 ): ObjectDependency[] {
   const dependencies: ObjectDependency[] = [];
+  for (const rule of draft.sql_rules) {
+    if (rule.rule_type === 'summary_projection' && Object.values(rule.rule_config).some(ids => ids.includes(objectId)))
+      dependencies.push({asset: '智能体汇总用途', key: rule.rule_key});
+  }
   const add = (asset: string, key: string) => dependencies.push({ asset, key });
   for (const metric of draft.metrics) {
     const refs = [

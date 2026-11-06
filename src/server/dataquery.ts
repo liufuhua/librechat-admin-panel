@@ -315,7 +315,23 @@ const metricSchema = z
     enabled: z.boolean(),
   })
   .strict();
+export const summaryProjectionRuleSchema = z.object({
+  rule_key: z.string(),
+  rule_type: z.literal('summary_projection'),
+  rule_config: z.object({
+    count_tables: z.array(z.string()).max(100),
+    count_columns: z.array(z.string()).max(500),
+    distinct_columns: z.array(z.string()).max(500),
+    group_columns: z.array(z.string()).max(500),
+    integer_filters: z.array(z.string()).max(500),
+    text_filters: z.array(z.string()).max(500),
+    time_columns: z.array(z.string()).max(500),
+    relationship_keys: z.array(z.string()).max(100),
+  }).strict(),
+  enabled: z.boolean(),
+}).strict();
 const sqlRuleSchema = z.discriminatedUnion('rule_type', [
+  summaryProjectionRuleSchema,
   z.object({
     rule_key: z.string(),
     rule_type: z.literal('bounded_lookup'),

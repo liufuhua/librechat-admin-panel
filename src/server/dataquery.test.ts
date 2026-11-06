@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  summaryProjectionRuleSchema,
   parseDataQueryConnectionResponse,
   parseDataQuerySchemaDiffResponse,
   parseDataQuerySnapshotJobResponse,
@@ -189,4 +190,13 @@ describe('data query v2 admin response contracts', () => {
       }),
     ).toThrow();
   });
+});
+
+// The same schema is used by draft create/update, so purposes survive the proxy.
+it('accepts explicit summary purposes and refuses injected grants or unknown options', () => {
+  const rule = {rule_key: 'summary', rule_type: 'summary_projection', enabled: true,
+    rule_config: {count_tables: ['table-id'], count_columns: [], distinct_columns: [], group_columns: [], integer_filters: [], text_filters: [], time_columns: [], relationship_keys: []}};
+  expect(summaryProjectionRuleSchema.parse(rule)).toEqual(rule);
+  expect(() => summaryProjectionRuleSchema.parse({...rule, grants: ['all']})).toThrow();
+  expect(() => summaryProjectionRuleSchema.parse({...rule, rule_config: {...rule.rule_config, allow_all: true}})).toThrow();
 });

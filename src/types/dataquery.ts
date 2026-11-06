@@ -138,7 +138,24 @@ export interface DataQueryDomain {
   versions: DataQueryVersionSummary[];
 }
 
+export interface SummaryProjectionConfig {
+  count_tables: string[];
+  count_columns: string[];
+  distinct_columns: string[];
+  group_columns: string[];
+  integer_filters: string[];
+  text_filters: string[];
+  time_columns: string[];
+  relationship_keys: string[];
+}
+
 export type DataQuerySqlRule =
+  | {
+      rule_key: string;
+      rule_type: 'summary_projection';
+      rule_config: SummaryProjectionConfig;
+      enabled: boolean;
+    }
   | {
       rule_key: string;
       rule_type: 'readonly' | 'limit_required';

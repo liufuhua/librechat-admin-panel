@@ -20,6 +20,14 @@ const colOptions = (d: t.DataQueryDomainDraft, id: string) =>
     value: v.object_ref.object_id,
     label: v.object_ref.column_name ?? v.object_ref.object_id,
   }));
+const summaryTypeAllowed = (purpose: string, dataType: string) => {
+  const kind = dataType.toLowerCase().split('(')[0].trim();
+  if (purpose === 'group_columns' || purpose === 'integer_filters')
+    return ['tinyint','smallint','mediumint','int','integer','bigint','int2','int4','int8','uint32','uint64'].includes(kind);
+  if (purpose === 'text_filters') return ['text','varchar','char','character varying','nvarchar','string'].includes(kind);
+  if (purpose === 'time_columns') return ['date','datetime','datetime2','timestamp','timestamp without time zone','timestamp with time zone','timestamptz'].includes(kind);
+  return true;
+};
 const key = (prefix: string, n: number) => `${prefix}_${n + 1}`;
 const requiredRuleColumns = (draft: t.DataQueryDomainDraft, rule: t.DataQuerySqlRule) =>
   rule.rule_type === 'required_scope_column'
@@ -43,6 +51,10 @@ export function RulesStep({ draft, readOnly, update }: StepProps) {
           rule_config: { tables: table ? [table.object_ref.table_name] : [] },
           enabled: true,
         });
+      else if (type === 'summary_projection')
+        d.sql_rules.push({ rule_key: k, rule_type: type, enabled: true,
+          rule_config: { count_tables: [], count_columns: [], distinct_columns: [],
+            group_columns: [], integer_filters: [], text_filters: [], time_columns: [], relationship_keys: [] } });
       else if (type === 'schema_evidence_required')
         d.sql_rules.push({
           rule_key: k,
@@ -82,8 +94,9 @@ export function RulesStep({ draft, readOnly, update }: StepProps) {
               'bounded_lookup',
               'schema_evidence_required',
               'required_scope_column',
+              'summary_projection',
             ].map((v) => (
-              <option key={v}>{v}</option>
+              <option key={v} value={v}>{v === 'summary_projection' ? '智能体汇总用途' : v}</option>
             ))}
           </select>
           <button type="button" disabled={readOnly} className="text-sm underline" onClick={add}>
@@ -113,6 +126,30 @@ export function RulesStep({ draft, readOnly, update }: StepProps) {
             <Field label={localize('com_data_query_editor_type_baaddf')}>
               <input className={fieldClass} disabled value={rule.rule_type} />
             </Field>
+            {rule.rule_type === 'summary_projection' && (
+              <div className="md:col-span-4">
+                <p className="mb-3 text-sm text-(--cui-color-text-muted)">选择允许向智能体提供的汇总范围。保存并发布领域后生效；这些选项不会给用户新增访问授权。分组仅支持整数编号，文本仅作筛选，不返回明细。</p>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {([
+                    ['count_tables', '允许计数的表'], ['count_columns', '可计数字段'],
+                    ['distinct_columns', '可去重计数字段'], ['group_columns', '可分组的整数编号'],
+                    ['integer_filters', '可等值筛选的整数编号'], ['text_filters', '可等值筛选的文本（最多120字）'],
+                    ['time_columns', '可限定时间范围的字段'], ['relationship_keys', '可使用的内关联'],
+                  ] as const).map(([purpose, label]) => {
+                    const options = purpose === 'count_tables' ? tableOptions(draft)
+                      : purpose === 'relationship_keys' ? draft.relationships.filter(r => r.join_type === 'inner').map(r => ({value: r.relationship_key, label: r.description || `${refLabel(r.left_column)} → ${refLabel(r.right_column)}`}))
+                      : draft.tables.flatMap(t => t.columns.filter(c => !c.sensitive && summaryTypeAllowed(purpose, c.data_type)).map(c => ({value: c.object_ref.object_id, label: `${t.display_name || t.object_ref.table_name} / ${c.display_name || c.object_ref.column_name}`})));
+                    // Keep stale selections visible; never silently drop saved scope.
+                    const missing = rule.rule_config[purpose].filter(id => !options.some(o => o.value === id));
+                    return <Field key={purpose} label={label}>
+                      <MultiSelect disabled={readOnly} values={rule.rule_config[purpose]}
+                        options={[...options, ...missing.map(id => ({value: id, label: '原选择已失效，请重新核对'}))]}
+                        onChange={values => update(d => {const r=d.sql_rules[index]; if(r.rule_type === 'summary_projection') r.rule_config[purpose]=values;})} />
+                    </Field>;
+                  })}
+                </div>
+              </div>
+            )}
             {'tables' in rule.rule_config && (
               <Field label={localize('com_data_query_editor_tables_e3fe2a')}>
                 <input
